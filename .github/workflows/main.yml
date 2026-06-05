@@ -1,0 +1,32 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs every Sunday at midnight
+  workflow_dispatch: # Allows manual triggering via the UI
+
+# Add this global environment variable to silence the Node 20 warning
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    # Explicitly grant write access for this job
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync with Upstream
+        uses: tgymnich/fork-sync@v2.0
+        with:
+          owner: zephyrproject-rtos   # The original repo owner
+          repo: zephyr                # The original repo name
+          base: main                  # The branch in your fork to update
+          head: main                  # The branch from the upstream repo
+          token: ${{ secrets.GITHUB_TOKEN }}
